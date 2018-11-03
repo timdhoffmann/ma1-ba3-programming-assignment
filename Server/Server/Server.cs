@@ -10,6 +10,7 @@ namespace Server
     {
         private readonly TcpListener _tcpListener = null;
 
+        #region Constructor
         public Server(int port)
         {
             var ipAddress = IPAddress.Any;
@@ -17,10 +18,11 @@ namespace Server
             _tcpListener = new TcpListener(ipAddress, port);
             _tcpListener.Start();
 
-            Console.WriteLine($"Started server at IP Address: {ipAddress}, Port: {port} \n");
+            Console.WriteLine($"Started server. Listening on any IP Address, Port: {port} \n");
 
             ListenForConnections();
         }
+        #endregion
 
         // Main thread listens for incoming connections.
         public void ListenForConnections()
