@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -8,25 +9,29 @@ namespace Server
 {
     internal class Server
     {
+        // Allows any available IP Address to be used.
+        private readonly IPAddress _ipAddress = IPAddress.Any;
+        private readonly int _port;
         private readonly TcpListener _tcpListener = null;
+        private readonly HashSet<TcpClient> _tcpClients = new HashSet<TcpClient>();
 
-        private string Time => $"[{System.DateTime.Now.ToString("HH:mm:ss")}]";
+        private static string TimeNow => $"[{System.DateTime.Now:HH:mm:ss}]";
 
         #region Constructor
         public Server(int port)
         {
-            // Allows any available IP Address to be used.
-            var ipAddress = IPAddress.Any;
+            _port = port;
+            _tcpListener = new TcpListener(_ipAddress, port);
+        }
+        #endregion
 
-            // Initializes and starts the server.
-            _tcpListener = new TcpListener(ipAddress, port);
+        public void Start()
+        {
             _tcpListener.Start();
-
-            Console.WriteLine($"{Time} Started server. Listening on any IP Address, Port: {port} \n");
+            Console.WriteLine($"{TimeNow} Started server. Listening on every available IP Address, Port: {_port} \n");
 
             ListenForConnections();
         }
-        #endregion
 
         // Main thread listens for incoming connections.
         public void ListenForConnections()
@@ -40,7 +45,7 @@ namespace Server
                 var newClient = _tcpListener.AcceptTcpClient();
 
                 // Client found.
-                Console.WriteLine($"{Time} Connected to client.");
+                Console.WriteLine($"{TimeNow} Connected to client.");
 
                 // Creates new thread for established connection.
                 var clientThread = new Thread(HandleClient);
@@ -51,11 +56,30 @@ namespace Server
         // New thread is created for every established connection.
         private void HandleClient(object clientObject)
         {
-            Console.WriteLine($"{Time} New client connection thread started.");
             var client = (TcpClient)clientObject;
+            Console.WriteLine($"{TimeNow} New client connection thread started.");
 
-            // Gets a stream object for reading and writing.
-            var networkStream = client.GetStream();
+            _tcpClients.Add(client);
+
+            var message = string.Empty;
+
+            //// Wraps a stream object for reading data.
+            //using (var streamReader = new StreamReader(client.GetStream()))
+            //{
+            //}
+
+            //// Wraps a stream object for writing data.
+            //using (var streamWriter = new StreamWriter(client.GetStream()))
+            //{
+            //}
+        }
+
+        private void Broadcast()
+        {
+            // TODO: implementation.
+            // Iterates over client list.
+
+            // Sends message to all clients.
         }
     }
 }
