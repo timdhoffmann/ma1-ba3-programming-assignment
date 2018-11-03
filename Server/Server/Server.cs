@@ -39,7 +39,7 @@ namespace Server
             // Listening loop.
             while (true)
             {
-                Console.WriteLine("...Listening for client connection request... \n");
+                Console.WriteLine($"{_tcpClients.Count} clients connected... Listening for connection request... \n");
 
                 // Waits for client connection request (blocking call).
                 var newClient = _tcpListener.AcceptTcpClient();
@@ -63,12 +63,12 @@ namespace Server
 
             var message = string.Empty;
 
-            //// Wraps a stream object for reading data.
-            //using (var streamReader = new StreamReader(client.GetStream()))
-            //{
-            //}
+            // Wraps a stream object for reading data.
+            using (var streamReader = new StreamReader(client.GetStream()))
+            {
+            }
 
-            //// Wraps a stream object for writing data.
+            // Wraps a stream object for writing data.
             //using (var streamWriter = new StreamWriter(client.GetStream()))
             //{
             //}
