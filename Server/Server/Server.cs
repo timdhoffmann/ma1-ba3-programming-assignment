@@ -10,15 +10,19 @@ namespace Server
     {
         private readonly TcpListener _tcpListener = null;
 
+        private string Time => $"[{System.DateTime.Now.ToString("HH:mm:ss")}]";
+
         #region Constructor
         public Server(int port)
         {
+            // Allows any available IP Address to be used.
             var ipAddress = IPAddress.Any;
+
             // Initializes and starts the server.
             _tcpListener = new TcpListener(ipAddress, port);
             _tcpListener.Start();
 
-            Console.WriteLine($"Started server. Listening on any IP Address, Port: {port} \n");
+            Console.WriteLine($"{Time} Started server. Listening on any IP Address, Port: {port} \n");
 
             ListenForConnections();
         }
@@ -30,13 +34,13 @@ namespace Server
             // Listening loop.
             while (true)
             {
-                Console.WriteLine("Listening for client connection request...");
+                Console.WriteLine("...Listening for client connection request... \n");
 
                 // Waits for client connection request (blocking call).
                 var newClient = _tcpListener.AcceptTcpClient();
 
                 // Client found.
-                Console.WriteLine("Connected to client.");
+                Console.WriteLine($"{Time} Connected to client.");
 
                 // Creates new thread for established connection.
                 var clientThread = new Thread(HandleClient);
@@ -47,7 +51,7 @@ namespace Server
         // New thread is created for every established connection.
         private void HandleClient(object clientObject)
         {
-            Console.WriteLine("New client connection thread started.");
+            Console.WriteLine($"{Time} New client connection thread started.");
             var client = (TcpClient)clientObject;
 
             // Gets a stream object for reading and writing.
