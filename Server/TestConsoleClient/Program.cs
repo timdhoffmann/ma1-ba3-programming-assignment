@@ -10,29 +10,21 @@ namespace TestConsoleClient
 
             const string ipAddress = "127.0.0.1";
             const int port = 13000;
+            var client = new Client(ipAddress, port);
 
-            var isConnected = false;
-
-            // Attempts connecting upon user input.
-            while (!isConnected)
+            // Loops for input to start connection.
+            while (!client.IsConnected)
             {
                 Console.WriteLine($"Press Enter to connect to IP Address: {ipAddress}, Port: {port}... \n");
 
+                // Checks for the specific input to start connection.
                 if (Console.ReadKey().Key == ConsoleKey.Enter)
                 {
-                    try
-                    {
-                        var client = new Client(ipAddress, port);
-                        isConnected = true;
-                    }
-                    catch (Exception exception)
-                    {
-                        Console.WriteLine($"Error: {exception} \n");
-                    }
+                    client.Connect();
                 }
             }
 
-            // Wait to exit.
+            // Wait for input before exit.
             Console.ReadKey();
         }
     }
