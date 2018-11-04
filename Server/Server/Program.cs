@@ -6,9 +6,21 @@ namespace Server
     {
         private static void Main(string[] args)
         {
-            var server = new Server(13000);
+            Console.WriteLine("**************");
+            Console.WriteLine("*** SERVER ***");
+            Console.WriteLine("************** \n");
 
-            //Console.ReadKey(true);
+            const int port = 13000;
+
+            try
+            {
+                var server = new Server(port);
+                server.Start();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }
