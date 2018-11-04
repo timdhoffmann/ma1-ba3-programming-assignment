@@ -12,20 +12,24 @@ namespace TestConsoleClient
             const int port = 13000;
             var client = new Client(ipAddress, port);
 
-            // Loops for input to start connection.
-            while (!client.IsConnected)
+            try
             {
-                Console.WriteLine($"Press Enter to connect to IP Address: {ipAddress}, Port: {port}... \n");
-
-                // Checks for the specific input to start connection.
-                if (Console.ReadKey().Key == ConsoleKey.Enter)
+                // Loops for user input to start connection.
+                while (!client.IsConnected)
                 {
-                    client.Connect();
+                    Console.WriteLine($"Press Enter to connect to IP Address: {ipAddress}, Port: {port}... \n");
+
+                    // Checks for the specific input to start connection.
+                    if (Console.ReadKey().Key == ConsoleKey.Enter)
+                    {
+                        client.Connect();
+                    }
                 }
             }
-
-            // Wait for input before exit.
-            Console.ReadKey();
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }

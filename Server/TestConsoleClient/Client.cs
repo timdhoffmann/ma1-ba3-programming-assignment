@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
@@ -11,39 +12,43 @@ namespace TestConsoleClient
         public int Port { get; }
         public bool IsConnected { get; private set; } = false;
 
-        private readonly TcpClient _tcpClient = null;
-
         #region Constructor
         public Client(string ipAddress, int port)
         {
             IpAddress = ipAddress;
             Port = port;
-            _tcpClient = new TcpClient();
         }
         #endregion
 
         public void Connect()
         {
-            try
+            using (var tcpClient = new TcpClient(IpAddress, Port))
+            using (var networkStream = tcpClient.GetStream())
+            using (var streamReader = new StreamReader(networkStream))
+            using (var streamWriter = new StreamWriter(networkStream))
             {
-                _tcpClient.Connect(IpAddress, Port);
+                Console.Clear();
+                streamWriter.AutoFlush = true;
+
                 IsConnected = true;
                 Console.WriteLine($"Connected to server at IP Address: {IpAddress}, Port: {Port}");
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine($"Error, could not connect to server: \n {exception} \n");
-            }
 
-            if (IsConnected)
-            {
-                HandleCommunication();
-            }
-        }
+                // Handles communication.
+                var incomingMessage = string.Empty;
+                var outgoingMessage = string.Empty;
+                while (true)
+                {
+                    if ((incomingMessage = streamReader.ReadLine()) != null)
+                    {
+                        Console.WriteLine(incomingMessage);
+                    }
 
-        private void HandleCommunication()
-        {
-            Console.WriteLine("Handling communication...");
+                    if ((outgoingMessage = Console.ReadLine()) != null)
+                    {
+                        streamWriter.Write(outgoingMessage);
+                    }
+                }
+            }
         }
     }
 }
