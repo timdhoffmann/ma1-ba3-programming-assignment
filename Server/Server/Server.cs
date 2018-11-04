@@ -27,10 +27,21 @@ namespace Server
 
         public void Start()
         {
-            _tcpListener.Start();
-            Console.WriteLine($"{TimeNow} Started server. Listening on every available IP Address, Port: {_port} \n");
-
-            ListenForConnections();
+            try
+            {
+                _tcpListener.Start();
+                Console.WriteLine(
+                    $"{TimeNow} Started server. Listening on every available IP Address, Port: {_port} \n");
+                ListenForConnections();
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
+            finally
+            {
+                _tcpListener?.Stop();
+            }
         }
 
         // Main thread listens for incoming connections.
@@ -42,6 +53,7 @@ namespace Server
                 Console.WriteLine($"{_tcpClients.Count} clients connected... Listening for connection request... \n");
 
                 // Waits for client connection request (blocking call).
+                // TODO: Handle disposal of TcpClient (maybe move to HandleClient thread?)
                 var newClient = _tcpListener.AcceptTcpClient();
 
                 // Client found.
@@ -58,28 +70,37 @@ namespace Server
         // New thread is created for every established connection.
         private void HandleClient(object clientObject)
         {
-            var client = (TcpClient)clientObject;
             Console.WriteLine($"{TimeNow} New client connection thread started.");
 
-            var message = string.Empty;
-
-            // Wraps a stream object for reading data.
-            using (var streamReader = new StreamReader(client.GetStream()))
+            try
             {
+                using (var client = (TcpClient)clientObject)
+                using (var networkStream = client.GetStream())
+                using (var streamReader = new StreamReader(networkStream))
+                using (var streamWriter = new StreamWriter(networkStream))
+                {
+                    streamWriter.AutoFlush = true;
+
+                    var message = "[SERVER] Connected to server";
+
+                    while ((message != null) && (!message.StartsWith("exit")))
+                    {
+                        // Writes to local console.
+                        Console.WriteLine($"From client: {message}");
+
+                        // Writes to client stream.
+                        streamWriter.WriteLine($"{TimeNow} {message}");
+
+                        message = streamReader.ReadLine();
+                    }
+                }
             }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
 
-            // Wraps a stream object for writing data.
-            //using (var streamWriter = new StreamWriter(client.GetStream()))
-            //{
-            //}
-        }
-
-        private void Broadcast()
-        {
-            // TODO: implementation.
-            // Iterates over client list.
-
-            // Sends message to all clients.
+                // TODO: Remove client from list when losing connection.
+            }
         }
     }
 }
