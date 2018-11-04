@@ -30,33 +30,26 @@ namespace TestConsoleClient
                 Console.Clear();
                 sWriter.AutoFlush = true;
                 IsConnected = true;
-                Console.WriteLine($"Connected to server at IP Address: {IpAddress}, Port: {Port}");
+                Console.WriteLine($"Connected to server at IP Address: {IpAddress}, Port: {Port} \n");
 
                 // Handles communication.
-                var message = string.Empty;
                 var outgoingMessage = string.Empty;
-                while (!message.Equals("exit"))
+                while (!outgoingMessage.Equals("exit"))
                 {
-                    message = Console.ReadLine();
-                    // not implemented:
-                    // Console.WriteLine();
+                    var incomingMessage = sReader.ReadLine();
+                    Console.WriteLine(incomingMessage);
 
-                    sWriter.WriteLine(message);
-                    // not implemented:
-                    //sWriter.Flush();
+                    // Loops for non-empty user input.
+                    while (outgoingMessage == string.Empty)
+                    {
+                        Console.Write(">> ");
+                        outgoingMessage = Console.ReadLine() ?? string.Empty;
+                    }
 
-                    var serverMessage = sReader.ReadLine();
-                    Console.WriteLine(serverMessage);
+                    sWriter.WriteLine(outgoingMessage);
 
-                    //if ((incomingMessage = sReader.ReadLine()) != null)
-                    //{
-                    //    Console.WriteLine(incomingMessage);
-                    //}
-
-                    //if ((outgoingMessage = Console.ReadLine()) != null)
-                    //{
-                    //    sWriter.Write(outgoingMessage);
-                    //}
+                    // Resets user input.
+                    outgoingMessage = string.Empty;
                 }
             }
         }

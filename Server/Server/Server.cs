@@ -81,19 +81,21 @@ namespace Server
                 {
                     sWriter.AutoFlush = true;
 
-                    var message = "[SERVER] Connected to server";
+                    // Welcomes client through client stream.
+                    sWriter.WriteLine($"{TimeNow} [SERVER] Welcome.");
 
+                    var message = string.Empty;
                     // Network stream loop.
-                    while ((message != null) && (!message.StartsWith("exit")))
+                    while (!(message.StartsWith("exit")))
                     {
-                        // Writes to local console.
+                        // Attempts to assign message from client stream.
+                        message = sReader.ReadLine() ?? string.Empty;
+
+                        // Writes to server console.
                         Console.WriteLine($"From client: {message}");
 
                         // Writes to client stream.
                         sWriter.WriteLine($"{TimeNow} {message}");
-
-                        // Reads from client stream.
-                        message = sReader.ReadLine();
                     }
                 }
             }
