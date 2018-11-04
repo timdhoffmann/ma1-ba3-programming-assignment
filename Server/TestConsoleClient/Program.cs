@@ -12,10 +12,10 @@ namespace TestConsoleClient
             const int port = 13000;
             var client = new Client(ipAddress, port);
 
-            try
+            // Loops for user input to start connection.
+            while (!client.IsConnected)
             {
-                // Loops for user input to start connection.
-                while (!client.IsConnected)
+                try
                 {
                     Console.WriteLine($"Press Enter to connect to IP Address: {ipAddress}, Port: {port}... \n");
 
@@ -25,10 +25,10 @@ namespace TestConsoleClient
                         client.Connect();
                     }
                 }
-            }
-            catch (Exception)
-            {
-                throw;
+                catch (Exception exception)
+                {
+                    Console.WriteLine($"Error: \n {exception} \n");
+                }
             }
         }
     }
