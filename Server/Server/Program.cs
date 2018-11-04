@@ -14,8 +14,6 @@ namespace Server
 
             var server = new Server(port);
             server.Start();
-
-            //Console.ReadKey(true);
         }
     }
 }

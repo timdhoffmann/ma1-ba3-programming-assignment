@@ -47,6 +47,8 @@ namespace Server
                 // Client found.
                 Console.WriteLine($"{TimeNow} Connected to client.");
 
+                _tcpClients.Add(newClient);
+
                 // Creates new thread for established connection.
                 var clientThread = new Thread(HandleClient);
                 clientThread.Start(newClient);
@@ -58,8 +60,6 @@ namespace Server
         {
             var client = (TcpClient)clientObject;
             Console.WriteLine($"{TimeNow} New client connection thread started.");
-
-            _tcpClients.Add(client);
 
             var message = string.Empty;
 
