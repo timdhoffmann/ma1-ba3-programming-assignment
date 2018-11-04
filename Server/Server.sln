@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.28010.2050
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Server", "Server\Server.csproj", "{3BAE4A45-E24B-4183-B634-3A886182B5FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsoleClient", "TestConsoleClient\TestConsoleClient.csproj", "{09EC2276-C1A5-47C8-A308-FB2E2EE8515A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestConsoleClient", "TestConsoleClient\TestConsoleClient.csproj", "{09EC2276-C1A5-47C8-A308-FB2E2EE8515A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

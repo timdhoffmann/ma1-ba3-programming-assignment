@@ -76,22 +76,24 @@ namespace Server
             {
                 using (var client = (TcpClient)clientObject)
                 using (var networkStream = client.GetStream())
-                using (var streamReader = new StreamReader(networkStream))
-                using (var streamWriter = new StreamWriter(networkStream))
+                using (var sReader = new StreamReader(networkStream))
+                using (var sWriter = new StreamWriter(networkStream))
                 {
-                    streamWriter.AutoFlush = true;
+                    sWriter.AutoFlush = true;
 
                     var message = "[SERVER] Connected to server";
 
+                    // Network stream loop.
                     while ((message != null) && (!message.StartsWith("exit")))
                     {
                         // Writes to local console.
                         Console.WriteLine($"From client: {message}");
 
                         // Writes to client stream.
-                        streamWriter.WriteLine($"{TimeNow} {message}");
+                        sWriter.WriteLine($"{TimeNow} {message}");
 
-                        message = streamReader.ReadLine();
+                        // Reads from client stream.
+                        message = sReader.ReadLine();
                     }
                 }
             }
