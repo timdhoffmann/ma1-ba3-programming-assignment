@@ -70,7 +70,7 @@ namespace Server
         // New thread is created for every established connection.
         private void HandleClient(object clientObject)
         {
-            Console.WriteLine($"{TimeNow} New client connection thread started.");
+            Console.WriteLine($"{TimeNow} New client connection thread started. \n");
 
             try
             {
@@ -97,8 +97,15 @@ namespace Server
                         if (!receivedMessage.StartsWith("exit"))
                         {
                             _broadcastMessage = receivedMessage;
+
                             // Writes to client stream.
-                            sWriter.WriteLine($"{TimeNow} {client.GetHashCode()} {_broadcastMessage}");
+                            foreach (var tcpClient in _tcpClients)
+                            {
+                                var writer = new StreamWriter(tcpClient.GetStream()) { AutoFlush = true };
+                                writer.WriteLine($"{TimeNow} {client.GetHashCode()} {_broadcastMessage}");
+                            }
+
+                            _broadcastMessage = string.Empty;
                         }
                     }
                 }
