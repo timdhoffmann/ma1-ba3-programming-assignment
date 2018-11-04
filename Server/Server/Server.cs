@@ -16,7 +16,7 @@ namespace Server
         private readonly HashSet<TcpClient> _tcpClients = new HashSet<TcpClient>();
 
         private static string TimeNow => $"[{System.DateTime.Now:HH:mm:ss}]";
-
+        private string _broadcastMessage = string.Empty;
         #region Constructor
         public Server(int port)
         {
@@ -75,36 +75,43 @@ namespace Server
             try
             {
                 using (var client = (TcpClient)clientObject)
-                using (var networkStream = client.GetStream())
-                using (var sReader = new StreamReader(networkStream))
-                using (var sWriter = new StreamWriter(networkStream))
+                using (var sReader = new StreamReader(client.GetStream()))
+                using (var sWriter = new StreamWriter(client.GetStream()))
                 {
                     sWriter.AutoFlush = true;
 
                     // Welcomes client through client stream.
                     sWriter.WriteLine($"{TimeNow} [SERVER] Welcome.");
 
-                    var message = string.Empty;
+                    var receivedMessage = string.Empty;
                     // Network stream loop.
-                    while (!(message.StartsWith("exit")))
+                    while (!(receivedMessage.StartsWith("exit")))
                     {
                         // Attempts to assign message from client stream.
-                        message = sReader.ReadLine() ?? string.Empty;
+                        // Blocks until it receives something.
+                        receivedMessage = sReader.ReadLine() ?? string.Empty;
 
                         // Writes to server console.
-                        Console.WriteLine($"From client: {message}");
+                        Console.WriteLine($"From client {client.GetHashCode()}: {receivedMessage}");
 
-                        // Writes to client stream.
-                        sWriter.WriteLine($"{TimeNow} {message}");
+                        if (!receivedMessage.StartsWith("exit"))
+                        {
+                            _broadcastMessage = receivedMessage;
+                            // Writes to client stream.
+                            sWriter.WriteLine($"{TimeNow} {client.GetHashCode()} {_broadcastMessage}");
+                        }
                     }
                 }
             }
             catch (Exception exception)
             {
-                Console.WriteLine(exception);
-
-                // TODO: Remove client from list when losing connection.
+                Console.WriteLine($"{exception} \n");
             }
+
+            // Client connection lost.
+            // TODO: Need to handle client IDisposable?
+            _tcpClients.Remove((TcpClient)clientObject);
+            Console.WriteLine($"Client removed. Clients connected: {_tcpClients.Count}");
         }
     }
 }
