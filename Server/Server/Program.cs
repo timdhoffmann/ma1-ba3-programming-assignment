@@ -12,8 +12,15 @@ namespace Server
 
             const int port = 13000;
 
-            var server = new Server(port);
-            server.Start();
+            try
+            {
+                var server = new Server(port);
+                server.Start();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }
