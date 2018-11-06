@@ -34,7 +34,7 @@ public class AppManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Return))
+        if (Input.GetKeyDown(KeyCode.Return) && !string.IsNullOrEmpty(_input.text))
             SendMessage();
     }
 
@@ -46,13 +46,15 @@ public class AppManager : MonoBehaviour
     private void SendMessage()
     {
         connection.SendDataToServer(_input.text);
+
         _input.text = string.Empty;
+        _input.Select();
     }
 
     private void ReceivedMessage(string msg)
     {
         _outPut.text += msg + "\n";
 
-        _scrollRect.verticalNormalizedPosition = 1;
+        _scrollRect.verticalNormalizedPosition = 0;
     }
 }
