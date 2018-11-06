@@ -273,7 +273,7 @@ public class NetworkConnection
                         OnRecievedMessage(output);
                 });
 
-                return;
+                break;
                 
                 //if (stringData.Length > messageSize)
                 //{
