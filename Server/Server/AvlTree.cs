@@ -30,14 +30,14 @@ namespace Server
 
         #region Public Methods
         #region Insertion
-        /// <summary>
-        /// Inserts value into the tree as a new newNode.
-        /// </summary>
-        /// <param name="value"> The value to insert. </param>
-        public void Insert(T value)
-        {
-            Root = Insert(Root, new AvlNode<T>(value));
-        }
+        ///// <summary>
+        ///// Inserts value into the tree as a new newNode.
+        ///// </summary>
+        ///// <param name="value"> The value to insert. </param>
+        //public void Insert(T value)
+        //{
+        //    Root = Insert(Root, new AvlNode<T>(value));
+        //}
         #endregion
 
         #region Finding
@@ -75,72 +75,98 @@ namespace Server
         #endregion
 
         #region Private Methods
+        #region Common
         /// <summary>
         /// Inserts a new node underneath the given root and re-balances the tree.
         /// </summary>
         /// <param name="root"> The root node. </param>
         /// <param name="newNode"> The new node to insert. </param>
         /// <returns> The new root of the tree after potential re-balancing. </returns>
-        private AvlNode<T> Insert(AvlNode<T> root, AvlNode<T> newNode)
-        {
-            if (root == null)
-            {
-                root = newNode;
-                Count++;
-            }
-            else
-            {
-                root.ResetHeight();
-                int compareResult = root.Value.CompareTo(newNode.Value);
-                if (compareResult > 0)
-                {
-                    root.LeftChild = Insert(root.LeftChild, newNode);
-                }
-                else if (compareResult < 0)
-                {
-                    root.RightChild = Insert(root.RightChild, newNode);
-                }
-                else
-                {
-                    throw new ArgumentException("Trying to insert duplicate node.");
-                }
-            }
-
-            root = ReBalanceFrom(root);
-            return root;
-        }
-
-        private AvlNode<T> ReBalanceFrom(AvlNode<T> node)
-        {
-            // TODO: Implementation.
-            throw new NotImplementedException();
-        }
-
-        // TODO: Implement Insert().
-        //private AvlNode Insert(IComparable item, AvlNode newNode)
+        //private AvlNode<T> Insert(AvlNode<T> root, AvlNode<T> newNode)
         //{
-        //    if (newNode == null)
+        //    if (root == null)
         //    {
-        //        newNode = new AvlNode(item, null, null);
+        //        root = newNode;
+        //        Count++;
         //    }
-        //    else if (item.CompareTo(newNode.Value) < 0)
+        //    else
         //    {
-        //        newNode.LeftChild = Insert(item, newNode.LeftChild);
-
-        //        if (height(newNode.LeftChild) - height(newNode.RightChild) == 2)
+        //        root.ResetHeight();
+        //        int compareResult = root.Value.CompareTo(newNode.Value);
+        //        if (compareResult > 0)
         //        {
-        //            newNode = RotateWithLeftChild(newNode);
+        //            root.LeftChild = Insert(root.LeftChild, newNode);
+        //        }
+        //        else if (compareResult < 0)
+        //        {
+        //            root.RightChild = Insert(root.RightChild, newNode);
         //        }
         //        else
         //        {
-        //            newNode = DoubleWithLeftChild(newNode);
+        //            throw new ArgumentException("Trying to insert duplicate node.");
         //        }
         //    }
-        //    else if (item.CompareTo(newNode.Value) > 0)
-        //    {
-        //        // TODO: Implement (s. p 267).
-        //    }
+
+        //    root = ReBalanceFrom(root);
+        //    return root;
         //}
+
+        //private AvlNode<T> ReBalanceFrom(AvlNode<T> node)
+        //{
+        //    // TODO: Implementation.
+        //    throw new NotImplementedException();
+        //}
+
+        #endregion
+
+        #region McMillan
+        // TODO: Implement Insert().
+        private AvlNode<T> Insert(T item, AvlNode<T> root)
+        {
+            if (root == null)
+            {
+                root = new AvlNode<T>(item, null, null);
+            }
+            else if (item.CompareTo(root.Value) < 0)
+            {
+                root.LeftChild = Insert(item, root.LeftChild);
+
+                if (root.LeftChild.Height - root.RightChild.Height == 2)
+                {
+                    root = RotateWithLeftChild(root);
+                }
+                else
+                {
+                    root = DoubleWithLeftChild(root);
+                }
+            }
+            else if (item.CompareTo(root.Value) > 0)
+            {
+                root.RightChild = Insert(item, root.RightChild);
+
+                if (root.RightChild.Height - root.LeftChild.Height == 2)
+                {
+                    if (item.CompareTo(root.RightChild.Value) > 0)
+                    {
+                        root = RotateWithRightChild(root);
+                    }
+                    else
+                    {
+                        root = DoubleWithRightChild(root);
+                    }
+                }
+            }
+            // Duplicate value.
+            else
+            {
+                throw new ArgumentException("Trying to insert duplicate node.");
+            }
+
+            root.Height = Math.Max(root.LeftChild.Height, root.RightChild.Height) + 1;
+
+            return root;
+        }
+        #endregion
         #endregion
     }
 }
