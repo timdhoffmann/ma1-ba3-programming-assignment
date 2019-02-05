@@ -10,17 +10,20 @@ namespace Server
         public T Value { get; private set; }
         public AvlNode<T> LeftChild { get; set; } = null;
         public AvlNode<T> RightChild { get; set; } = null;
-        #endregion
-
-        #region Fields
-        // TODO: Check if necessary.
-        private int _height = int.MinValue;
+        public int Height { get; set; } = int.MinValue;
         #endregion
 
         #region Constructors
         public AvlNode(T value)
         {
             Value = value;
+        }
+
+        public AvlNode(T value, AvlNode<T> leftChild, AvlNode<T> rightChild)
+        {
+            Value = value;
+            LeftChild = leftChild;
+            RightChild = rightChild;
         }
 
         // TODO: Check if this constructor is necessary.
@@ -64,7 +67,7 @@ namespace Server
         /// </summary>
         public void ResetHeight()
         {
-            _height = int.MinValue;
+            Height = int.MinValue;
         }
         #endregion
     }
