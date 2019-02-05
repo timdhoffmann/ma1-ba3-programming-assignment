@@ -3,23 +3,26 @@ using UnityEngine.UI;
 
 public class AppManager : MonoBehaviour
 {
-    [SerializeField]
-    private string TCPServerAddress;
-    [SerializeField]
-    private int TCPPort;
-    [SerializeField]
-    private Button _sendButton;
-    [SerializeField]
-    private InputField _input;
-    [SerializeField]
-    private Text _outPut;
-    [SerializeField]
-    private ScrollRect _scrollRect;
+    [SerializeField] private string TCPServerAddress;
+    [SerializeField] private int TCPPort;
+    [SerializeField] private Button _sendButton;
+    [SerializeField] private InputField _input;
+    [SerializeField] private Text _outPut;
+    [SerializeField] private ScrollRect _scrollRect;
 
-    NetworkConnection connection;
+    private NetworkConnection connection;
 
-    void Start()
+    private void Start()
     {
+        _sendButton.onClick.AddListener(Connect);
+        _sendButton.GetComponentInChildren<Text>().text = "Connect";
+    }
+
+    private void Connect()
+    {
+        _sendButton.onClick.RemoveListener(Connect);
+        _sendButton.GetComponentInChildren<Text>().text = "Send";
+
         connection = new NetworkConnection();
         connection.StablishConnectionWithServer(
             TCPServerAddress,
