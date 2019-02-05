@@ -166,6 +166,36 @@ namespace Server
 
             return root;
         }
+
+        private AvlNode<T> RotateWithLeftChild(AvlNode<T> n2)
+        {
+            AvlNode<T> n1 = n2.LeftChild;
+            n2.LeftChild = n1.RightChild;
+            n1.RightChild = n2;
+            n2.Height = Math.Max(n2.LeftChild.Height, n2.RightChild.Height) + 1;
+            n1.Height = Math.Max(n1.LeftChild.Height, n2.Height) + 1;
+            return n1;
+        }
+        private AvlNode<T> RotateWithRightChild(AvlNode<T> n1)
+        {
+            AvlNode<T> n2 = n1.RightChild;
+            n1.RightChild = n2.LeftChild;
+            n2.LeftChild = n1;
+            n1.Height = Math.Max(n1.LeftChild.Height, n1.RightChild.Height) + 1;
+            n2.Height = Math.Max(n2.RightChild.Height, n1.Height) + 1;
+            return n2;
+        }
+
+        private AvlNode<T> DoubleWithLeftChild(AvlNode<T> n3)
+        {
+            n3.LeftChild = RotateWithRightChild(n3.LeftChild);
+            return RotateWithLeftChild(n3);
+        }
+        private AvlNode<T> DoubleWithRightChild(AvlNode<T> n1)
+        {
+            n1.RightChild = RotateWithLeftChild(n1.RightChild);
+            return RotateWithRightChild(n1);
+        }
         #endregion
         #endregion
     }
