@@ -14,9 +14,11 @@ namespace Server
         private readonly int _port;
         private readonly TcpListener _tcpListener = null;
         private readonly HashSet<TcpClient> _tcpClients = new HashSet<TcpClient>();
+        private readonly UserManager _userManager = new UserManager(10);
 
         private static string TimeNow => $"[{System.DateTime.Now:HH:mm:ss}]";
         private string _broadcastMessage = string.Empty;
+
         #region Constructor
         public Server(int port)
         {

@@ -6,7 +6,7 @@ namespace Server
     /// A self-balancing binary search tree.
     /// </summary>
     /// <typeparam name="T"> The generic type. Must implement IComparable T. </typeparam>
-    internal class AvlTree<T> where T : IComparable<T>
+    internal class AvlTree<T> where T : IComparable
     {
         #region Properties
         /// <summary>
@@ -30,14 +30,18 @@ namespace Server
 
         #region Public Methods
         #region Insertion
-        ///// <summary>
-        ///// Inserts value into the tree as a new newNode.
-        ///// </summary>
-        ///// <param name="value"> The value to insert. </param>
-        //public void Insert(T value)
-        //{
-        //    Root = Insert(Root, new AvlNode<T>(value));
-        //}
+        /// <summary>
+        /// Inserts value into the tree as a new newNode.
+        /// </summary>
+        /// <param name="value"> The value to insert. </param>
+        public void Insert(T value)
+        {
+            // Common implementation.
+            //Root = Insert(Root, new AvlNode<T>(value));
+
+            // McMillan.
+            Root = Insert(value, Root);
+        }
         #endregion
 
         #region Finding
