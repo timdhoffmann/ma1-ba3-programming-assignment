@@ -44,7 +44,9 @@ namespace Server
             }
         }
 
-        // Main thread listens for incoming connections.
+        /// <summary>
+        /// Main thread listens for incoming connections.
+        /// </summary>
         public void ListenForConnections()
         {
             // Listening loop.
@@ -67,7 +69,10 @@ namespace Server
             }
         }
 
-        // New thread is created for every established connection.
+        /// <summary>
+        /// Handles an established connection with a single client.
+        /// </summary>
+        /// <param name="clientObject"> The client to manage the connection with. </param>
         private void HandleClient(object clientObject)
         {
             Console.WriteLine($"{TimeNow} New client connection thread started. \n");
