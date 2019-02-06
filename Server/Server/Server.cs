@@ -118,9 +118,9 @@ namespace Server
         /// <summary>
         /// Handles the network stream loop.
         /// </summary>
-        /// <param name="client"></param>
-        /// <param name="sReader"></param>
-        /// <param name="sWriter"></param>
+        /// <param name="client"> The client to handle the network stream for. </param>
+        /// <param name="sReader"> The client's stream reader. </param>
+        /// <param name="sWriter"> The client's stream writer. </param>
         private void HandleNetworkStream(TcpClient client, StreamReader sReader, StreamWriter sWriter)
         {
             User user = null;
@@ -177,9 +177,9 @@ namespace Server
         /// <summary>
         /// Authenticates a client as an existing user.
         /// </summary>
-        /// <param name="requestedId"> The client's submitted </param>
-        /// <param name="sWriter"></param>
-        /// <returns></returns>
+        /// <param name="requestedId"> The id requested for authentication by the client. </param>
+        /// <param name="sWriter"> The client's stream writer. </param>
+        /// <returns> The user object for the requested id, if it exists, or null. </returns>
         private User AuthenticateUser(string requestedId, StreamWriter sWriter)
         {
             User user = null;

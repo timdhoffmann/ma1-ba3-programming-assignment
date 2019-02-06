@@ -6,6 +6,24 @@ namespace Server
 {
     internal class AvlNode<T>
     {
+        #region Constructors
+
+        public AvlNode(T value)
+        {
+            Value = value;
+            Height = int.MinValue;
+        }
+
+        public AvlNode(T value, AvlNode<T> leftChild, AvlNode<T> rightChild)
+        {
+            Value = value;
+            Height = int.MinValue;
+            LeftChild = leftChild;
+            RightChild = rightChild;
+        }
+
+        #endregion
+
         #region Properties
 
         /// <summary>
@@ -42,50 +60,6 @@ namespace Server
         #region Fields
         private int _height = int.MinValue;
         #endregion
-
-        #region Constructors
-
-        public AvlNode(T value)
-        {
-            Value = value;
-            Height = int.MinValue;
-        }
-
-        public AvlNode(T value, AvlNode<T> leftChild, AvlNode<T> rightChild)
-        {
-            Value = value;
-            Height = int.MinValue;
-            LeftChild = leftChild;
-            RightChild = rightChild;
-        }
-
-        // TODO: Check if this constructor is necessary.
-        //public AvlNode(T value, AvlNode<T> leftNode, AvlNode<T> rightNode)
-        //{
-        //    Value = value;
-        //    LeftChild = leftNode;
-        //    RightChild = rightNode;
-        //    _height = 0;
-        //}
-
-        #endregion
-
-        //public int CompareTo(object obj)
-        //{
-        //    // TODO: Implement CompareTo().
-
-        //    switch (obj)
-        //    {
-        //        case null:
-        //            return 1;
-
-        //        case AvlNode otherNode:
-        //            return Value.CompareTo(otherNode.Value);
-
-        //        default:
-        //            throw new ArgumentException("Object is not an AvlNode.");
-        //    }
-        //}
 
         #region Public Methods
 
