@@ -9,6 +9,7 @@ namespace Server
 {
     internal class Server
     {
+        #region Fields
         // Allows any available IP Address to be used.
         private readonly IPAddress _ipAddress = IPAddress.Any;
         private readonly int _port;
@@ -19,8 +20,9 @@ namespace Server
         private static string TimeNow => $"[{System.DateTime.Now:HH:mm:ss}]";
 
         private string _broadcastMessage = string.Empty;
+        #endregion
 
-        #region Constructor
+        #region Constructors
 
         public Server(int port)
         {
@@ -30,6 +32,10 @@ namespace Server
 
         #endregion
 
+        #region Public Methods
+        /// <summary>
+        /// Starts the server.
+        /// </summary>
         public void Start()
         {
             _userManager.DisplayRegisteredUsers();
@@ -50,11 +56,14 @@ namespace Server
                 _tcpListener?.Stop();
             }
         }
+        #endregion
 
+        #region Private Methods
         /// <summary>
-        /// Main thread listens for incoming connections.
+        /// Main thread.
+        /// Listens for incoming connections.
         /// </summary>
-        public void ListenForConnections()
+        private void ListenForConnections()
         {
             // Listening loop.
             while (true)
@@ -92,43 +101,9 @@ namespace Server
                 {
                     sWriter.AutoFlush = true;
 
-                    // Welcomes client through client stream.
-                    sWriter.WriteLine($"{TimeNow} [SERVER] Welcome. Please enter your user id.");
-
                     var receivedMessage = string.Empty;
 
-                    // Network stream loop.
-                    while (!(receivedMessage.StartsWith(Constants.ExitCommand)))
-                    {
-                        // Attempts to assign message from client stream.
-                        // Blocks until it receives something.
-                        receivedMessage = sReader.ReadLine() ?? string.Empty;
-
-                        // Writes to server console.
-                        Console.WriteLine($"From client {client.GetHashCode()}: {receivedMessage}");
-
-                        // Filters for special commands.
-                        switch (receivedMessage)
-                        {
-                            case Constants.ExitCommand:
-                                // do something.
-                                break;
-
-                            default:
-                                // Default behavior.
-                                _broadcastMessage = receivedMessage;
-
-                                // Writes to all client streams.
-                                foreach (var tcpClient in _tcpClients)
-                                {
-                                    var writer = new StreamWriter(tcpClient.GetStream()) { AutoFlush = true };
-                                    writer.WriteLine($"{TimeNow} {client.GetHashCode()} {_broadcastMessage}");
-                                }
-
-                                _broadcastMessage = string.Empty;
-                                break;
-                        }
-                    }
+                    HandleNetworkStream(receivedMessage, sReader, sWriter, client);
                 }
             }
             catch (Exception exception)
@@ -141,5 +116,78 @@ namespace Server
             _tcpClients.Remove((TcpClient)clientObject);
             Console.WriteLine($"Client removed. Clients connected: {_tcpClients.Count}");
         }
+
+        /// <summary>
+        /// Network stream loop.
+        /// </summary>
+        /// <param name="receivedMessage"></param>
+        /// <param name="sReader"></param>
+        /// <param name="client"></param>
+        private void HandleNetworkStream(string receivedMessage, StreamReader sReader, StreamWriter sWriter, TcpClient client)
+        {
+            var isAuthenticated = false;
+            User user = null;
+
+            while (!(receivedMessage.StartsWith(Constants.ExitCommand)))
+            {
+                if (!isAuthenticated)
+                {
+                    // Welcomes client through client stream.
+                    sWriter.WriteLine($"{TimeNow} [SERVER] Welcome. Please enter your numeric user id.");
+                }
+
+                // Attempts to assign message from client stream.
+                // Blocks until it receives something.
+                receivedMessage = sReader.ReadLine() ?? string.Empty;
+
+                // Writes to server console.
+                Console.WriteLine($"From client {client.GetHashCode()}: {receivedMessage}");
+
+                if (!isAuthenticated)
+                {
+                    // Integer conversion successful.
+                    if (int.TryParse(receivedMessage, out var id))
+                    {
+                        user = _userManager.FindUserById(id);
+                        isAuthenticated = (user != null);
+
+                        if (isAuthenticated)
+                        {
+                            sWriter.WriteLine($"{TimeNow} [SERVER] Successfully authenticated as {user.Name}.");
+                        }
+                    }
+                    else
+                    {
+                        sWriter.WriteLine($"{TimeNow} [SERVER] You didn't enter a numeric value.");
+                    }
+                }
+                // User is authenticated. Handle messages.
+                else
+                {
+                    // Filters for special commands.
+                    switch (receivedMessage)
+                    {
+                        case Constants.ExitCommand:
+                            // do something.
+                            break;
+
+                        default:
+                            // Default behavior.
+                            _broadcastMessage = receivedMessage;
+
+                            // Writes to all client streams.
+                            foreach (var tcpClient in _tcpClients)
+                            {
+                                var writer = new StreamWriter(tcpClient.GetStream()) { AutoFlush = true };
+                                writer.WriteLine($"{TimeNow} {client.GetHashCode()} {_broadcastMessage}");
+                            }
+
+                            _broadcastMessage = string.Empty;
+                            break;
+                    }
+                }
+            }
+        }
+        #endregion
     }
 }

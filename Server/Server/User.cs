@@ -27,6 +27,9 @@ namespace Server
                 case User otherUser:
                     return Id.CompareTo(otherUser.Id);
 
+                case int id:
+                    return Id.CompareTo(id);
+
                 default:
                     throw new ArgumentException("Other object is not a user.");
             }

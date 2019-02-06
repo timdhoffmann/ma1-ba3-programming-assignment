@@ -30,6 +30,11 @@ namespace Server
             Console.WriteLine();
         }
 
+        public User FindUserById(int id)
+        {
+            return UserTree.Find(new User(id, string.Empty)).Value;
+        }
+
         #endregion
 
         #region Private Methods
