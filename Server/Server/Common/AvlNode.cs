@@ -105,6 +105,42 @@ namespace Server
             Height = int.MinValue;
         }
 
+        /// <summary>
+        /// Rotates this node's sub-tree counter-clockwise.
+        /// </summary>
+        /// <returns> The new root of the tree. </returns>
+        internal AvlNode<T> RotateLeft()
+        {
+            var pivot = RightChild;
+
+            RightChild = pivot.LeftChild;
+            pivot.LeftChild = this;
+
+            // Fixes heights.
+            pivot.ResetHeight();
+            ResetHeight();
+
+            return pivot;
+        }
+
+        /// <summary>
+        /// Rotates this node's sub-tree clockwise.
+        /// </summary>
+        /// <returns> The new root of the tree. </returns>
+        internal AvlNode<T> RotateRight()
+        {
+            var pivot = LeftChild;
+
+            LeftChild = pivot.RightChild;
+            pivot.RightChild = this;
+
+            // Fixes heights.
+            pivot.ResetHeight();
+            ResetHeight();
+
+            return pivot;
+        }
+
         #endregion
 
         #region Private Methods
@@ -136,6 +172,7 @@ namespace Server
         {
             return GetChildNodeHeight(LeftChild) - GetChildNodeHeight(RightChild);
         }
+
         #endregion
     }
 }
