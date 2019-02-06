@@ -20,11 +20,13 @@ namespace Server
         private string _broadcastMessage = string.Empty;
 
         #region Constructor
+
         public Server(int port)
         {
             _port = port;
             _tcpListener = new TcpListener(_ipAddress, port);
         }
+
         #endregion
 
         public void Start()

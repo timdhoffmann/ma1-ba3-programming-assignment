@@ -13,11 +13,13 @@ namespace TestConsoleClient
         public bool IsConnected { get; private set; } = false;
 
         #region Constructor
+
         public Client(string ipAddress, int port)
         {
             IpAddress = ipAddress;
             Port = port;
         }
+
         #endregion
 
         public void Connect()

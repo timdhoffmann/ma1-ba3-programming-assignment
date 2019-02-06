@@ -9,6 +9,7 @@ namespace Server
     internal class AvlTree<T> where T : IComparable
     {
         #region Properties
+
         /// <summary>
         /// The root of this tree.
         /// </summary>
@@ -18,18 +19,23 @@ namespace Server
         /// The number of nodes in this tree.
         /// </summary>
         public int Count { get; private set; }
+
         #endregion
 
         #region Constructors
+
         public AvlTree()
         {
             Root = null;
             Count = 0;
         }
+
         #endregion
 
         #region Public Methods
+
         #region Insertion
+
         /// <summary>
         /// Inserts value into the tree as a new newNode.
         /// </summary>
@@ -42,9 +48,11 @@ namespace Server
             // McMillan.
             Root = Insert(value, Root);
         }
+
         #endregion
 
         #region Finding
+
         public AvlNode<T> FindMin()
         {
             var current = Root;
@@ -75,11 +83,15 @@ namespace Server
         //    {
         //    }
         //}
+
         #endregion
+
         #endregion
 
         #region Private Methods
+
         #region Common
+
         /// <summary>
         /// Inserts a new node underneath the given root and re-balances the tree.
         /// </summary>
@@ -124,6 +136,7 @@ namespace Server
         #endregion
 
         #region McMillan
+
         // TODO: Implement Insert().
         private AvlNode<T> Insert(T item, AvlNode<T> root)
         {
@@ -180,6 +193,7 @@ namespace Server
             n1.Height = Math.Max(n1.LeftChild.Height, n2.Height) + 1;
             return n1;
         }
+
         private AvlNode<T> RotateWithRightChild(AvlNode<T> n1)
         {
             AvlNode<T> n2 = n1.RightChild;
@@ -195,12 +209,15 @@ namespace Server
             n3.LeftChild = RotateWithRightChild(n3.LeftChild);
             return RotateWithLeftChild(n3);
         }
+
         private AvlNode<T> DoubleWithRightChild(AvlNode<T> n1)
         {
             n1.RightChild = RotateWithLeftChild(n1.RightChild);
             return RotateWithRightChild(n1);
         }
+
         #endregion
+
         #endregion
     }
 }

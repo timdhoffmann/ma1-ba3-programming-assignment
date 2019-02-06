@@ -8,6 +8,7 @@ namespace Server
         public AvlTree<User> UserTree { get; private set; } = new AvlTree<User>();
 
         #region Constructors
+
         public UserManager(int testUsers)
         {
             UserList = CreateTestUsers(testUsers);
@@ -17,6 +18,7 @@ namespace Server
                 UserTree.Insert(user);
             }
         }
+
         #endregion
 
         internal List<User> CreateTestUsers(int amount)
