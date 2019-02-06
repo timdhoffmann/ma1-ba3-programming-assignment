@@ -132,18 +132,48 @@ namespace Server
             // Left tree is taller.
             if (node.Balance > 1)
             {
-                return RebalanceLeftSubTree(node);
+                return ReBalanceLeftSubTree(node);
             }
 
             // Right tree is taller.
             else if (node.Balance < -1)
             {
-                return RebalanceRightSubTree(node);
+                return ReBalanceRightSubTree(node);
             }
 
+            // No balancing needed.
             return node;
         }
 
+        /// <summary>
+        /// Performs the rotations necessary to balance a parent.
+        /// </summary>
+        /// <param name="parent"> The parent node to re-balance. </param>
+        private static AvlNode<T> ReBalanceLeftSubTree(AvlNode<T> parent)
+        {
+            // Converts a Root -> Left -> Right sub tree
+            // into a Root -> Left -> Left sub tree maintaining order
+            // so that we can do the standard rotate.
+            if (parent.LeftChild.Balance < 0)
+                parent.LeftChild = parent.LeftChild.RotateLeft();
+
+            return parent.RotateRight();
+        }
+
+        /// <summary>
+        /// Performs the rotations necessary to balance a parent.
+        /// </summary>
+        /// <param name="parent"> The parent node to re-balance. </param>
+        private static AvlNode<T> ReBalanceRightSubTree(AvlNode<T> parent)
+        {
+            // Converts a Root -> Right -> Left sub tree
+            // Into a Root -> Right -> Right sub tree maintaining order
+            // So that we can do the standard rotate
+            if (parent.RightChild.Balance > 0)
+                parent.RightChild = parent.RightChild.RotateRight();
+
+            return parent.RotateLeft();
+        }
         #endregion
     }
 }
