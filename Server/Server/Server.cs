@@ -101,9 +101,7 @@ namespace Server
                 {
                     sWriter.AutoFlush = true;
 
-                    var receivedMessage = string.Empty;
-
-                    HandleNetworkStream(receivedMessage, sReader, sWriter, client);
+                    HandleNetworkStream(sReader, sWriter, client);
                 }
             }
             catch (Exception exception)
@@ -123,14 +121,14 @@ namespace Server
         /// <param name="receivedMessage"></param>
         /// <param name="sReader"></param>
         /// <param name="client"></param>
-        private void HandleNetworkStream(string receivedMessage, StreamReader sReader, StreamWriter sWriter, TcpClient client)
+        private void HandleNetworkStream(StreamReader sReader, StreamWriter sWriter, TcpClient client)
         {
-            var isAuthenticated = false;
             User user = null;
+            var receivedMessage = string.Empty;
 
             while (!(receivedMessage.StartsWith(Constants.ExitCommand)))
             {
-                if (!isAuthenticated)
+                if (user == null)
                 {
                     // Welcomes client through client stream.
                     sWriter.WriteLine($"{TimeNow} [SERVER] Welcome. Please enter your numeric user id.");
@@ -143,24 +141,11 @@ namespace Server
                 // Writes to server console.
                 Console.WriteLine($"From client {client.GetHashCode()}: {receivedMessage}");
 
-                if (!isAuthenticated)
+                if (user == null)
                 {
-                    // Integer conversion successful.
-                    if (int.TryParse(receivedMessage, out var id))
-                    {
-                        user = _userManager.FindUserById(id);
-                        isAuthenticated = (user != null);
-
-                        if (isAuthenticated)
-                        {
-                            sWriter.WriteLine($"{TimeNow} [SERVER] Successfully authenticated as {user.Name}.");
-                        }
-                    }
-                    else
-                    {
-                        sWriter.WriteLine($"{TimeNow} [SERVER] You didn't enter a numeric value.");
-                    }
+                    user = AuthenticateUser(receivedMessage, sWriter);
                 }
+
                 // User is authenticated. Handle messages.
                 else
                 {
@@ -179,7 +164,7 @@ namespace Server
                             foreach (var tcpClient in _tcpClients)
                             {
                                 var writer = new StreamWriter(tcpClient.GetStream()) { AutoFlush = true };
-                                writer.WriteLine($"{TimeNow} {client.GetHashCode()} {_broadcastMessage}");
+                                writer.WriteLine($"{TimeNow} [{user.Name}] {_broadcastMessage}");
                             }
 
                             _broadcastMessage = string.Empty;
@@ -188,6 +173,26 @@ namespace Server
                 }
             }
         }
+
+        private User AuthenticateUser(string receivedMessage, StreamWriter sWriter)
+        {
+            // Integer conversion successful.
+            if (int.TryParse(receivedMessage, out var id))
+            {
+                var user = _userManager.FindUserById(id);
+                if (user == null) return null;
+
+                sWriter.WriteLine($"{TimeNow} [SERVER] Successfully authenticated as {user.Name}.");
+                return user;
+            }
+            else
+            {
+                sWriter.WriteLine($"{TimeNow} [SERVER] You didn't enter a numeric value.");
+            }
+
+            return null;
+        }
+
         #endregion
     }
 }
