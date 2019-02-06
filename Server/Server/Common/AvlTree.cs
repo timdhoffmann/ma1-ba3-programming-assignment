@@ -43,10 +43,7 @@ namespace Server
         public void Insert(T value)
         {
             // Common implementation.
-            //Root = Insert(Root, new AvlNode<T>(value));
-
-            // McMillan.
-            Root = Insert(value, Root);
+            Root = Insert(Root, new AvlNode<T>(value));
         }
 
         #endregion
@@ -90,133 +87,62 @@ namespace Server
 
         #region Private Methods
 
-        #region Common
-
         /// <summary>
         /// Inserts a new node underneath the given root and re-balances the tree.
         /// </summary>
         /// <param name="root"> The root node. </param>
         /// <param name="newNode"> The new node to insert. </param>
         /// <returns> The new root of the tree after potential re-balancing. </returns>
-        //private AvlNode<T> Insert(AvlNode<T> root, AvlNode<T> newNode)
-        //{
-        //    if (root == null)
-        //    {
-        //        root = newNode;
-        //        Count++;
-        //    }
-        //    else
-        //    {
-        //        root.ResetHeight();
-        //        int compareResult = root.Value.CompareTo(newNode.Value);
-        //        if (compareResult > 0)
-        //        {
-        //            root.LeftChild = Insert(root.LeftChild, newNode);
-        //        }
-        //        else if (compareResult < 0)
-        //        {
-        //            root.RightChild = Insert(root.RightChild, newNode);
-        //        }
-        //        else
-        //        {
-        //            throw new ArgumentException("Trying to insert duplicate node.");
-        //        }
-        //    }
-
-        //    root = ReBalanceFrom(root);
-        //    return root;
-        //}
-
-        //private AvlNode<T> ReBalanceFrom(AvlNode<T> node)
-        //{
-        //    // TODO: Implementation.
-        //    throw new NotImplementedException();
-        //}
-
-        #endregion
-
-        #region McMillan
-
-        // TODO: Implement Insert().
-        private AvlNode<T> Insert(T item, AvlNode<T> root)
+        private AvlNode<T> Insert(AvlNode<T> root, AvlNode<T> newNode)
         {
             if (root == null)
             {
-                root = new AvlNode<T>(item, null, null);
+                root = newNode;
+                Count++;
             }
-            else if (item.CompareTo(root.Value) < 0)
+            else
             {
-                root.LeftChild = Insert(item, root.LeftChild);
-
-                if (root.LeftChild.Height - root.RightChild.Height == 2)
+                root.ResetHeight();
+                int compareResult = root.Value.CompareTo(newNode.Value);
+                if (compareResult > 0)
                 {
-                    root = RotateWithLeftChild(root);
+                    root.LeftChild = Insert(root.LeftChild, newNode);
+                }
+                else if (compareResult < 0)
+                {
+                    root.RightChild = Insert(root.RightChild, newNode);
                 }
                 else
                 {
-                    root = DoubleWithLeftChild(root);
+                    throw new ArgumentException("Trying to insert duplicate node.");
                 }
             }
-            else if (item.CompareTo(root.Value) > 0)
-            {
-                root.RightChild = Insert(item, root.RightChild);
 
-                if (root.RightChild.Height - root.LeftChild.Height == 2)
-                {
-                    if (item.CompareTo(root.RightChild.Value) > 0)
-                    {
-                        root = RotateWithRightChild(root);
-                    }
-                    else
-                    {
-                        root = DoubleWithRightChild(root);
-                    }
-                }
-            }
-            // Duplicate value.
-            else
-            {
-                throw new ArgumentException("Trying to insert duplicate node.");
-            }
-
-            root.Height = Math.Max(root.LeftChild.Height, root.RightChild.Height) + 1;
-
+            root = ReBalanceIfNecessary(root);
             return root;
         }
 
-        private AvlNode<T> RotateWithLeftChild(AvlNode<T> n2)
+        /// <summary>
+        /// Re-balances a node, if necessary.
+        /// </summary>
+        /// <param name="node">The node to re-balance. </param>
+        /// <returns> // TODO: what is returned? </returns>
+        private static AvlNode<T> ReBalanceIfNecessary(AvlNode<T> node)
         {
-            AvlNode<T> n1 = n2.LeftChild;
-            n2.LeftChild = n1.RightChild;
-            n1.RightChild = n2;
-            n2.Height = Math.Max(n2.LeftChild.Height, n2.RightChild.Height) + 1;
-            n1.Height = Math.Max(n1.LeftChild.Height, n2.Height) + 1;
-            return n1;
-        }
+            // Left tree is taller.
+            if (node.Balance > 1)
+            {
+                return RebalanceLeftSubTree(node);
+            }
 
-        private AvlNode<T> RotateWithRightChild(AvlNode<T> n1)
-        {
-            AvlNode<T> n2 = n1.RightChild;
-            n1.RightChild = n2.LeftChild;
-            n2.LeftChild = n1;
-            n1.Height = Math.Max(n1.LeftChild.Height, n1.RightChild.Height) + 1;
-            n2.Height = Math.Max(n2.RightChild.Height, n1.Height) + 1;
-            return n2;
-        }
+            // Right tree is taller.
+            else if (node.Balance < -1)
+            {
+                return RebalanceRightSubTree(node);
+            }
 
-        private AvlNode<T> DoubleWithLeftChild(AvlNode<T> n3)
-        {
-            n3.LeftChild = RotateWithRightChild(n3.LeftChild);
-            return RotateWithLeftChild(n3);
+            return node;
         }
-
-        private AvlNode<T> DoubleWithRightChild(AvlNode<T> n1)
-        {
-            n1.RightChild = RotateWithLeftChild(n1.RightChild);
-            return RotateWithRightChild(n1);
-        }
-
-        #endregion
 
         #endregion
     }
