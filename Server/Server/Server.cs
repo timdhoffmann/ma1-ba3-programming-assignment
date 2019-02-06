@@ -95,13 +95,15 @@ namespace Server
 
             try
             {
+                // Automatically disposes the following objects,
+                // which implement IDisposable.
                 using (var client = (TcpClient)clientObject)
                 using (var sReader = new StreamReader(client.GetStream()))
                 using (var sWriter = new StreamWriter(client.GetStream()))
                 {
                     sWriter.AutoFlush = true;
 
-                    HandleNetworkStream(sReader, sWriter, client);
+                    HandleNetworkStream(client, sReader, sWriter);
                 }
             }
             catch (Exception exception)
@@ -110,18 +112,16 @@ namespace Server
             }
 
             // Client connection lost.
-            // TODO: Need to handle client IDisposable?
-            _tcpClients.Remove((TcpClient)clientObject);
             Console.WriteLine($"Client removed. Clients connected: {_tcpClients.Count}");
         }
 
         /// <summary>
-        /// Network stream loop.
+        /// Handles the network stream loop.
         /// </summary>
-        /// <param name="receivedMessage"></param>
-        /// <param name="sReader"></param>
         /// <param name="client"></param>
-        private void HandleNetworkStream(StreamReader sReader, StreamWriter sWriter, TcpClient client)
+        /// <param name="sReader"></param>
+        /// <param name="sWriter"></param>
+        private void HandleNetworkStream(TcpClient client, StreamReader sReader, StreamWriter sWriter)
         {
             User user = null;
             var receivedMessage = string.Empty;
@@ -174,10 +174,16 @@ namespace Server
             }
         }
 
-        private User AuthenticateUser(string receivedMessage, StreamWriter sWriter)
+        /// <summary>
+        /// Authenticates a client as an existing user.
+        /// </summary>
+        /// <param name="requestedId"> The client's submitted </param>
+        /// <param name="sWriter"></param>
+        /// <returns></returns>
+        private User AuthenticateUser(string requestedId, StreamWriter sWriter)
         {
             // Integer conversion successful.
-            if (int.TryParse(receivedMessage, out var id))
+            if (int.TryParse(requestedId, out var id))
             {
                 var user = _userManager.FindUserById(id);
                 if (user == null) return null;
