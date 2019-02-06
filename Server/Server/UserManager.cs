@@ -1,17 +1,44 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Server
 {
     internal class UserManager
     {
-        public List<User> UserList { get; private set; } = null;
-        public AvlTree<User> UserTree { get; private set; } = new AvlTree<User>();
-
         #region Constructors
 
-        public UserManager(int testUsers)
+        public UserManager()
         {
-            UserList = CreateTestUsers(testUsers);
+            GetRegisteredUsers();
+        }
+
+        #endregion
+
+        #region Properties
+        public List<User> UserList { get; private set; } = null;
+        public AvlTree<User> UserTree { get; private set; } = new AvlTree<User>();
+        #endregion
+
+        private readonly int _testUserCount = 10;
+
+        #region Public Methods
+
+        public void DisplayRegisteredUsers()
+        {
+            Console.WriteLine("Registered users:");
+            UserTree.DisplayInOrder(UserTree.Root);
+            Console.WriteLine();
+        }
+
+        #endregion
+
+        #region Private Methods
+        /// <summary>
+        /// Gets all registered users from a persistent source.
+        /// </summary>
+        private void GetRegisteredUsers()
+        {
+            UserList = CreateTestUsers(_testUserCount);
 
             foreach (var user in UserList)
             {
@@ -19,9 +46,12 @@ namespace Server
             }
         }
 
-        #endregion
-
-        internal List<User> CreateTestUsers(int amount)
+        /// <summary>
+        /// Creates a set of test users.
+        /// </summary>
+        /// <param name="amount"></param>
+        /// <returns></returns>
+        private static List<User> CreateTestUsers(int amount)
         {
             var testUsers = new List<User>();
 
@@ -32,5 +62,6 @@ namespace Server
 
             return testUsers;
         }
+        #endregion
     }
 }

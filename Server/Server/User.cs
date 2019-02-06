@@ -31,5 +31,10 @@ namespace Server
                     throw new ArgumentException("Other object is not a user.");
             }
         }
+
+        public override string ToString()
+        {
+            return $"{Name} | Id: {Id}";
+        }
     }
 }

@@ -83,6 +83,22 @@ namespace Server
 
         #endregion
 
+        #region Traversal
+        /// <summary>
+        /// Displays all nodes, starting from the given root, in order.
+        /// </summary>
+        /// <param name="rootNode"> The root node for the traversal. </param>
+        public void DisplayInOrder(AvlNode<T> rootNode)
+        {
+            if (rootNode == null) return;
+
+            DisplayInOrder(rootNode.LeftChild);
+            rootNode.Display();
+            DisplayInOrder(rootNode.RightChild);
+        }
+
+        #endregion
+
         #endregion
 
         #region Private Methods
