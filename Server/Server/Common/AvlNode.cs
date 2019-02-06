@@ -15,6 +15,9 @@ namespace Server
         public AvlNode<T> LeftChild { get; set; } = null;
         public AvlNode<T> RightChild { get; set; } = null;
 
+        /// <summary>
+        /// This node's height (max. height of sub-trees + 1).
+        /// </summary>
         public int Height
         {
             get
@@ -28,6 +31,11 @@ namespace Server
             }
             set => _height = value;
         }
+
+        /// <summary>
+        /// This node's balance (left child height - right child height).
+        /// </summary>
+        public int Balance => GetNodeBalance();
 
         #endregion
 
@@ -101,9 +109,9 @@ namespace Server
 
         #region Private Methods
         /// <summary>
-        /// Gets the height of the node.
+        /// Gets the height of this node.
         /// </summary>
-        /// <returns> The height of the node or 0 for a tree with only a root. </returns>
+        /// <returns> This node's height or 0 for a tree with only a root. </returns>
         private int GetNodeHeight()
         {
             return System.Math.Max(GetChildNodeHeight(LeftChild), GetChildNodeHeight(RightChild)) + 1;
@@ -118,6 +126,15 @@ namespace Server
         private static int GetChildNodeHeight(AvlNode<T> childNode)
         {
             return (childNode == null) ? -1 : childNode.Height;
+        }
+
+        /// <summary>
+        /// Gets the balance of this node (left child height - right child height).
+        /// </summary>
+        /// <returns> This node's balance. </returns>
+        private int GetNodeBalance()
+        {
+            return GetChildNodeHeight(LeftChild) - GetChildNodeHeight(RightChild);
         }
         #endregion
     }
