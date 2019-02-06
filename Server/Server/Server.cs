@@ -17,6 +17,7 @@ namespace Server
         private readonly UserManager _userManager = new UserManager();
 
         private static string TimeNow => $"[{System.DateTime.Now:HH:mm:ss}]";
+
         private string _broadcastMessage = string.Empty;
 
         #region Constructor
@@ -92,11 +93,12 @@ namespace Server
                     sWriter.AutoFlush = true;
 
                     // Welcomes client through client stream.
-                    sWriter.WriteLine($"{TimeNow} [SERVER] Welcome.");
+                    sWriter.WriteLine($"{TimeNow} [SERVER] Welcome. Please enter your user id.");
 
                     var receivedMessage = string.Empty;
+
                     // Network stream loop.
-                    while (!(receivedMessage.StartsWith("exit")))
+                    while (!(receivedMessage.StartsWith(Constants.ExitCommand)))
                     {
                         // Attempts to assign message from client stream.
                         // Blocks until it receives something.
@@ -105,18 +107,26 @@ namespace Server
                         // Writes to server console.
                         Console.WriteLine($"From client {client.GetHashCode()}: {receivedMessage}");
 
-                        if (!receivedMessage.StartsWith("exit"))
+                        // Filters for special commands.
+                        switch (receivedMessage)
                         {
-                            _broadcastMessage = receivedMessage;
+                            case Constants.ExitCommand:
+                                // do something.
+                                break;
 
-                            // Writes to client stream.
-                            foreach (var tcpClient in _tcpClients)
-                            {
-                                var writer = new StreamWriter(tcpClient.GetStream()) { AutoFlush = true };
-                                writer.WriteLine($"{TimeNow} {client.GetHashCode()} {_broadcastMessage}");
-                            }
+                            default:
+                                // Default behavior.
+                                _broadcastMessage = receivedMessage;
 
-                            _broadcastMessage = string.Empty;
+                                // Writes to all client streams.
+                                foreach (var tcpClient in _tcpClients)
+                                {
+                                    var writer = new StreamWriter(tcpClient.GetStream()) { AutoFlush = true };
+                                    writer.WriteLine($"{TimeNow} {client.GetHashCode()} {_broadcastMessage}");
+                                }
+
+                                _broadcastMessage = string.Empty;
+                                break;
                         }
                     }
                 }
