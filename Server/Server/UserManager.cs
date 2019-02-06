@@ -32,7 +32,10 @@ namespace Server
 
         public User FindUserById(int id)
         {
-            return UserTree.Find(new User(id, string.Empty)).Value;
+            var userNode = UserTree.Find(new User(id, string.Empty));
+
+            // Return value if exists, null otherwise.
+            return userNode?.Value;
         }
 
         #endregion

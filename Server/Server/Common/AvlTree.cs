@@ -76,23 +76,24 @@ namespace Server
         {
             var current = Root;
 
-            // Key and current value have the same sort order.
-            while (current.Value.CompareTo(key) != 0)
+            while (current != null)
             {
-                // Key precedes current value in sort order.
-                if (current.Value.CompareTo(key) > 0)
+                var compareResult = current.Value.CompareTo(key);
+
+                // Same sort order.
+                if (compareResult == 0)
+                {
+                    break;
+                }
+                // Current follows key.
+                else if (compareResult > 0)
                 {
                     current = current.LeftChild;
                 }
-                // Key follows current value in sort order.
+                // Current precedes key.
                 else
                 {
                     current = current.RightChild;
-                }
-
-                if (current == null)
-                {
-                    return null;
                 }
             }
 
