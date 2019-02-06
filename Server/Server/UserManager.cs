@@ -34,7 +34,7 @@ namespace Server
         {
             var userNode = UserTree.Find(new User(id, string.Empty));
 
-            // Return value if exists, null otherwise.
+            // Return value if userNode exists, null otherwise.
             return userNode?.Value;
         }
 

@@ -182,21 +182,28 @@ namespace Server
         /// <returns></returns>
         private User AuthenticateUser(string requestedId, StreamWriter sWriter)
         {
+            User user = null;
             // Integer conversion successful.
             if (int.TryParse(requestedId, out var id))
             {
-                var user = _userManager.FindUserById(id);
-                if (user == null) return null;
+                user = _userManager.FindUserById(id);
 
-                sWriter.WriteLine($"{TimeNow} [SERVER] Successfully authenticated as {user.Name}.");
-                return user;
+                if (user != null)
+                {
+                    WriteLineAsServer($"Successfully authenticated as {user.Name}.", sWriter);
+                }
             }
             else
             {
-                sWriter.WriteLine($"{TimeNow} [SERVER] You didn't enter a numeric value.");
+                WriteLineAsServer("You didn't enter a numeric value.", sWriter);
             }
 
-            return null;
+            return user;
+        }
+
+        private static void WriteLineAsServer(string message, StreamWriter sWriter)
+        {
+            sWriter.WriteLine($"{TimeNow} [SERVER] {message}");
         }
 
         #endregion
