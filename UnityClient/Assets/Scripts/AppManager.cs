@@ -1,38 +1,75 @@
 ﻿using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.UI;
 
 public class AppManager : MonoBehaviour
 {
-    [SerializeField] private string TCPServerAddress;
-    [SerializeField] private int TCPPort;
+    [SerializeField] private string _tcpServerAddress = "127.0.0.1";
+    [SerializeField] private int _tcpPort = 13000;
     [SerializeField] private Button _sendButton;
+    [SerializeField] private Button _connectButton;
     [SerializeField] private InputField _input;
-    [SerializeField] private Text _outPut;
+    [SerializeField] private Text _output;
+    [SerializeField] private Text _statusText;
     [SerializeField] private ScrollRect _scrollRect;
 
-    private NetworkConnection connection;
+    private NetworkConnection _connection;
 
     private void Start()
     {
-        _sendButton.onClick.AddListener(Connect);
-        _sendButton.GetComponentInChildren<Text>().text = "Connect";
+        Assert.IsNotNull(_sendButton);
+        Assert.IsNotNull(_connectButton);
+        Assert.IsNotNull(_input);
+        Assert.IsNotNull(_output);
+        Assert.IsNotNull(_statusText);
+        Assert.IsNotNull(_scrollRect);
+
+        Init();
+    }
+
+    private void Init()
+    {
+        _output.text = string.Empty;
+
+        _connectButton.onClick.AddListener(Connect);
+        _connectButton.GetComponentInChildren<Text>().text = "Connect";
+
+        _statusText.text = "Press button to connect.";
     }
 
     private void Connect()
     {
-        _sendButton.onClick.RemoveListener(Connect);
-        _sendButton.GetComponentInChildren<Text>().text = "Send";
+        _connection = new NetworkConnection();
+        _connection.EstablishConnectionWithServer(
+            _tcpServerAddress,
+            _tcpPort);
 
-        connection = new NetworkConnection();
-        connection.StablishConnectionWithServer(
-            TCPServerAddress,
-            TCPPort);
+        if (_connection.IsConnectedToServer)
+        {
+            _sendButton.onClick.AddListener(SendMessage);
 
-        _sendButton.onClick.AddListener(SendMessage);
+            _connectButton.onClick.RemoveListener(Connect);
+            _connectButton.onClick.AddListener(Disconnect);
+            _connectButton.GetComponentInChildren<Text>().text = "Disconnect";
 
-        connection.OnRecievedMessage += ReceivedMessage;
+            _statusText.text = "Connected to server.";
 
-        _input.Select();
+            _connection.OnRecievedMessage += ReceivedMessage;
+
+            _input.Select();
+        }
+    }
+
+    private void Disconnect()
+    {
+        if (_connection != null)
+        {
+            _connection.SendDataToServer("exit");
+        }
+        Assert.IsNotNull(_connection);
+        _connection.Disconnect();
+
+        Init();
     }
 
     private void Update()
@@ -43,12 +80,12 @@ public class AppManager : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        connection.Disconnect();
+        _connection.Disconnect();
     }
 
     private void SendMessage()
     {
-        connection.SendDataToServer(_input.text);
+        _connection.SendDataToServer(_input.text);
 
         _input.text = string.Empty;
         _input.Select();
@@ -56,7 +93,7 @@ public class AppManager : MonoBehaviour
 
     private void ReceivedMessage(string msg)
     {
-        _outPut.text += msg + "\n";
+        _output.text += msg + "\n";
 
         _scrollRect.verticalNormalizedPosition = 0;
     }

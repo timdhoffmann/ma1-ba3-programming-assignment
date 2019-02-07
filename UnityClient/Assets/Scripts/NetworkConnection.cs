@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 public class NetworkConnection
 {
-    struct NetworkData
+    private struct NetworkData
     {
         public byte[] content;
 
@@ -17,24 +17,26 @@ public class NetworkConnection
         }
     }
 
-    public delegate void    RecievedMessageHandler(string message);
-    public event     RecievedMessageHandler OnRecievedMessage;
-    public delegate void    SocketErrorHandler(SocketException error);
-    public event     SocketErrorHandler OnSocketError;
+    public delegate void RecievedMessageHandler(string message);
 
-    private Queue<NetworkData>   sendQueue;
-    private byte[]               bufferedData;
-    private int                  bufferedLength  = 0;
-    private bool                 isSendDone      = true;
-    private byte[]               _recieveBuffer  = new byte[8096];
-    private Socket               _socket         = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+    public event RecievedMessageHandler OnRecievedMessage;
+
+    public delegate void SocketErrorHandler(SocketException error);
+
+    public event SocketErrorHandler OnSocketError;
+
+    private Queue<NetworkData> sendQueue;
+    private byte[] bufferedData;
+    private int bufferedLength = 0;
+    private bool isSendDone = true;
+    private byte[] _recieveBuffer = new byte[8096];
+    private Socket _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
     public NetworkConnection()
     {
-
     }
 
-    void instance_OnGameReloded()
+    private void instance_OnGameReloded()
     {
         OnRecievedMessage = null;
     }
@@ -43,12 +45,12 @@ public class NetworkConnection
     //-------------------------------------------------------------------
     // - Server connection
 
-    protected bool IsConnectedToServer
+    public bool IsConnectedToServer
     {
         get { return _socket.Connected; }
     }
 
-    public bool Disconnect()
+    public void Disconnect()
     {
         if (_socket.Connected)
         {
@@ -57,14 +59,10 @@ public class NetworkConnection
             _socket.Close();
 
             Debug.Log("Disconnected from server");
-
-            return true;
         }
-
-        return false;
     }
 
-    public bool StablishConnectionWithServer(string serverAddress, int serverPort)
+    public bool EstablishConnectionWithServer(string serverAddress, int serverPort)
     {
         try
         {
@@ -138,7 +136,7 @@ public class NetworkConnection
     private void ProcessSendQueue(byte[] data)
     {
         NetworkData newData = new NetworkData(data);
-        
+
         sendQueue.Enqueue(newData);
 
         if (sendQueue.Count == 1 && isSendDone == true && IsConnectedToServer)
@@ -201,7 +199,7 @@ public class NetworkConnection
             Buffer.BlockCopy(recData, 0, dataToProcess, bufferedLength, recData.Length);
 
             //if (bufferedLength != 0)
-                //bufferedLength = 0;
+            //bufferedLength = 0;
 
             ProcessIncomingData(dataToProcess,
                 () =>
@@ -237,7 +235,7 @@ public class NetworkConnection
         }
     }
 
-    private void ProcessIncomingData(byte[] incomingData , 
+    private void ProcessIncomingData(byte[] incomingData,
                                             Action processDidFinished,
                                             Action<byte[]> processDidInterupt)
     {
@@ -248,7 +246,7 @@ public class NetworkConnection
         {
             try
             {
-                var stringData      = Encoding.UTF8.GetString(incomingData);
+                var stringData = Encoding.UTF8.GetString(incomingData);
                 //int contentLength   = int.Parse(stringData.Substring(0, headerSize));
                 //int messageSize     = contentLength + headerSize;
 
@@ -274,7 +272,7 @@ public class NetworkConnection
                 });
 
                 break;
-                
+
                 //if (stringData.Length > messageSize)
                 //{
                 //    stringData      = stringData.Remove(0, messageSize);
