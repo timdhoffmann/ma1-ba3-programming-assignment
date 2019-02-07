@@ -171,9 +171,9 @@ namespace Server
                     // Filters for special commands.
                     switch (receivedMessage)
                     {
-                        //case Constants.ExitCommand:
-                        //    // do something.
-                        //    break;
+                        case Constants.ExitCommand:
+                            // do something.
+                            break;
 
                         default:
                             // Default behavior.
