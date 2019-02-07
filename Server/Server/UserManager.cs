@@ -53,7 +53,7 @@ namespace Server
         {
             lock (_userTreeLock)
             {
-                Console.WriteLine("Registered users:");
+                Console.WriteLine("Registered users [InOrder from AVL Tree]:");
                 UserTree.DisplayInOrder(UserTree.Root);
                 Console.WriteLine();
             }

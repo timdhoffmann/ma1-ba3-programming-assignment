@@ -17,6 +17,11 @@ namespace Server
         private readonly HashSet<TcpClient> _tcpClients = new HashSet<TcpClient>();
         private readonly UserManager _userManager = new UserManager();
 
+        /// <summary>
+        /// Lock object for the tcp clients collection.
+        /// </summary>
+        private readonly object _tcpClientsLock = new object();
+
         private static string TimeNow => $"[{System.DateTime.Now:HH:mm:ss}]";
 
         private string _broadcastMessage = string.Empty;
@@ -76,7 +81,10 @@ namespace Server
                 // Client found.
                 Console.WriteLine($"{TimeNow} Connected to client.");
 
-                _tcpClients.Add(newClient);
+                lock (_tcpClientsLock)
+                {
+                    _tcpClients.Add(newClient);
+                }
 
                 // Creates new thread for established connection.
                 var clientThread = new Thread(HandleClient);
@@ -85,7 +93,7 @@ namespace Server
         }
 
         /// <summary>
-        /// Handles an established connection with a single client.
+        /// Handles an established connection with a single client in a new thread.
         /// </summary>
         /// <param name="clientObject"> The client to manage the connection with. </param>
         private void HandleClient(object clientObject)
@@ -111,7 +119,10 @@ namespace Server
             }
 
             // Client connection lost.
-            _tcpClients.Remove((TcpClient)clientObject);
+            lock (_tcpClientsLock)
+            {
+                _tcpClients.Remove((TcpClient)clientObject);
+            }
             ((TcpClient)clientObject).Dispose();
             Console.WriteLine($"Client removed. Clients connected: {_tcpClients.Count}");
         }
