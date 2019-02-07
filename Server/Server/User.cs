@@ -5,7 +5,7 @@ namespace Server
     internal class User : IComparable
     {
         public int Id { get; private set; } = 0;
-        public string Name { get; private set; } = string.Empty;
+        public string Name { get; private set; }
 
         #region Constructors
 
@@ -26,6 +26,9 @@ namespace Server
 
                 case User otherUser:
                     return Id.CompareTo(otherUser.Id);
+
+                case int id:
+                    return Id.CompareTo(id);
 
                 default:
                     throw new ArgumentException("Other object is not a user.");

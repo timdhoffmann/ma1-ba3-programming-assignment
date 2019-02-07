@@ -72,14 +72,33 @@ namespace Server
             return current;
         }
 
-        //public User FindUserId(int key)
-        //{
-        //    var current = Root;
+        public AvlNode<T> Find(T key)
+        {
+            var current = Root;
 
-        //    if (current.Value)
-        //    {
-        //    }
-        //}
+            while (current != null)
+            {
+                var compareResult = current.Value.CompareTo(key);
+
+                // Same sort order.
+                if (compareResult == 0)
+                {
+                    break;
+                }
+                // Current follows key.
+                else if (compareResult > 0)
+                {
+                    current = current.LeftChild;
+                }
+                // Current precedes key.
+                else
+                {
+                    current = current.RightChild;
+                }
+            }
+
+            return current;
+        }
 
         #endregion
 
