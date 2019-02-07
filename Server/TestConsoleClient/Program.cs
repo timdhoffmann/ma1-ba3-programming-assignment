@@ -12,6 +12,11 @@ namespace TestConsoleClient
             const int port = 13000;
             var client = new Client(ipAddress, port);
 
+            StartInputLoop(client, ipAddress, port);
+        }
+
+        private static void StartInputLoop(Client client, string ipAddress, int port)
+        {
             // Loops for user input to start connection.
             while (!client.IsConnected)
             {
@@ -27,7 +32,11 @@ namespace TestConsoleClient
                 }
                 catch (Exception exception)
                 {
-                    Console.WriteLine($"Error: \n {exception} \n");
+                    Console.WriteLine($"Connection error: \n {exception} \n");
+                }
+                finally
+                {
+                    StartInputLoop(client, ipAddress, port);
                 }
             }
         }

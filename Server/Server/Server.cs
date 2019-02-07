@@ -119,10 +119,16 @@ namespace Server
             }
 
             // Client connection lost.
+            CloseClientConnection(clientObject);
+        }
+
+        private void CloseClientConnection(object clientObject)
+        {
             lock (_tcpClientsLock)
             {
                 _tcpClients.Remove((TcpClient)clientObject);
             }
+
             ((TcpClient)clientObject).Dispose();
             Console.WriteLine($"Client removed. Clients connected: {_tcpClients.Count}");
         }
@@ -165,9 +171,9 @@ namespace Server
                     // Filters for special commands.
                     switch (receivedMessage)
                     {
-                        case Constants.ExitCommand:
-                            // do something.
-                            break;
+                        //case Constants.ExitCommand:
+                        //    // do something.
+                        //    break;
 
                         default:
                             // Default behavior.
@@ -196,6 +202,7 @@ namespace Server
         private User AuthenticateUser(string requestedId, StreamWriter sWriter)
         {
             User user = null;
+
             // Integer conversion successful.
             if (int.TryParse(requestedId, out var id))
             {
@@ -206,6 +213,10 @@ namespace Server
                     WriteLineAsServer($"Successfully authenticated as {user.Name}.", sWriter);
                 }
             }
+            else if (requestedId == Constants.ExitCommand)
+            {
+                return user;
+            }
             else
             {
                 WriteLineAsServer("You didn't enter a numeric value.", sWriter);
@@ -214,6 +225,11 @@ namespace Server
             return user;
         }
 
+        /// <summary>
+        /// Writes a message to a stream writer.
+        /// </summary>
+        /// <param name="message"> The message. </param>
+        /// <param name="sWriter"> The target stream writer. </param>
         private static void WriteLineAsServer(string message, StreamWriter sWriter)
         {
             sWriter.WriteLine($"{TimeNow} [SERVER] {message}");
