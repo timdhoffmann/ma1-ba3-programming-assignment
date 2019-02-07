@@ -71,7 +71,6 @@ namespace Server
                 Console.WriteLine($"{_tcpClients.Count} clients connected... Listening for connection request... \n");
 
                 // Waits for client connection request (blocking call).
-                // TODO: Handle disposal of TcpClient (maybe move to HandleClient thread?)
                 var newClient = _tcpListener.AcceptTcpClient();
 
                 // Client found.
@@ -112,6 +111,8 @@ namespace Server
             }
 
             // Client connection lost.
+            _tcpClients.Remove((TcpClient)clientObject);
+            ((TcpClient)clientObject).Dispose();
             Console.WriteLine($"Client removed. Clients connected: {_tcpClients.Count}");
         }
 
@@ -126,6 +127,7 @@ namespace Server
             User user = null;
             var receivedMessage = string.Empty;
 
+            // Listen loop for network stream.
             while (!(receivedMessage.StartsWith(Constants.ExitCommand)))
             {
                 if (user == null)
