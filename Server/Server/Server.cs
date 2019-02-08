@@ -118,6 +118,8 @@ namespace Server
                 Console.WriteLine($"{exception} \n");
             }
 
+            _userManager.RemoveConnectedUserByClient((TcpClient)clientObject);
+
             // Client connection lost.
             CloseClientConnection(clientObject);
         }
@@ -131,6 +133,7 @@ namespace Server
 
             ((TcpClient)clientObject).Dispose();
             Console.WriteLine($"Client removed. Clients connected: {_tcpClients.Count}");
+            _userManager.DisplayRegisteredUsers();
         }
 
         /// <summary>
@@ -162,7 +165,7 @@ namespace Server
 
                 if (user == null)
                 {
-                    user = AuthenticateUser(receivedMessage, sWriter);
+                    user = AuthenticateUser(receivedMessage, client, sWriter);
                 }
 
                 // User is authenticated. Handle messages.
@@ -172,7 +175,8 @@ namespace Server
                     switch (receivedMessage)
                     {
                         case Constants.ExitCommand:
-                            // do something.
+
+                            _userManager.SetUserTcpClient(user, null);
                             break;
 
                         default:
@@ -199,7 +203,7 @@ namespace Server
         /// <param name="requestedId"> The id requested for authentication by the client. </param>
         /// <param name="sWriter"> The client's stream writer. </param>
         /// <returns> The user object for the requested id, if it exists, or null. </returns>
-        private User AuthenticateUser(string requestedId, StreamWriter sWriter)
+        private User AuthenticateUser(string requestedId, TcpClient tcpClient, StreamWriter sWriter)
         {
             User user = null;
 
@@ -208,9 +212,17 @@ namespace Server
             {
                 user = _userManager.FindUserById(id);
 
+                // User was found.
                 if (user != null)
                 {
+                    // Requested user is already connected.
+                    if (user.IsConnected) return null;
+
+                    // Requested user is not connected, yet.
+                    _userManager.SetUserTcpClient(user, tcpClient);
                     WriteLineAsServer($"Successfully authenticated as {user.Name}.", sWriter);
+
+                    _userManager.DisplayRegisteredUsers();
                 }
             }
             else if (requestedId == Constants.ExitCommand)
