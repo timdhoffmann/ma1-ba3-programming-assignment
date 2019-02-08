@@ -118,12 +118,15 @@ namespace Server
                 Console.WriteLine($"{exception} \n");
             }
 
-            _userManager.RemoveConnectedUserByClient((TcpClient)clientObject);
-
             // Client connection lost.
+            _userManager.RemoveConnectedUserByClient((TcpClient)clientObject);
             CloseClientConnection(clientObject);
         }
 
+        /// <summary>
+        /// Closes the client connection and logs to console.
+        /// </summary>
+        /// <param name="clientObject"> The client to close the connection of. </param>
         private void CloseClientConnection(object clientObject)
         {
             lock (_tcpClientsLock)
