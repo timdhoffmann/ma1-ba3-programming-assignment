@@ -25,9 +25,8 @@ namespace TestConsoleClient
         public void Connect()
         {
             using (var tcpClient = new TcpClient(IpAddress, Port))
-            using (var networkStream = tcpClient.GetStream())
-            using (var sReader = new StreamReader(networkStream))
-            using (var sWriter = new StreamWriter(networkStream))
+            using (var sReader = new StreamReader(tcpClient.GetStream()))
+            using (var sWriter = new StreamWriter(tcpClient.GetStream()))
             {
                 Console.Clear();
                 sWriter.AutoFlush = true;
@@ -54,6 +53,9 @@ namespace TestConsoleClient
                     outgoingMessage = string.Empty;
                 }
             }
+
+            // Connection lost.
+            IsConnected = false;
         }
     }
 }

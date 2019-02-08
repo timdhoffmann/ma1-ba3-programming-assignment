@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Sockets;
 
 namespace Server
 {
@@ -28,6 +29,11 @@ namespace Server
         private readonly object _userListLock = new object();
 
         /// <summary>
+        /// Lock object for a user.
+        /// </summary>
+        private readonly object _userLock = new object();
+
+        /// <summary>
         /// Lock object for the user tree.
         /// </summary>
         private readonly object _userTreeLock = new object();
@@ -42,6 +48,16 @@ namespace Server
         /// </summary>
         private List<User> _testUserDataBase = null;
 
+        /// <summary>
+        /// All connected users by TCP Client.
+        /// </summary>
+        private readonly Dictionary<TcpClient, User> _connectedUsersByTcpClient = new Dictionary<TcpClient, User>();
+
+        /// <summary>
+        /// Lock object for the user tree.
+        /// </summary>
+        private readonly object _connectedUsersByTcpClientLock = new object();
+
         #endregion
 
         #region Public Methods
@@ -53,7 +69,7 @@ namespace Server
         {
             lock (_userTreeLock)
             {
-                Console.WriteLine("Registered users:");
+                Console.WriteLine("Registered users [InOrder from AVL Tree]:");
                 UserTree.DisplayInOrder(UserTree.Root);
                 Console.WriteLine();
             }
@@ -73,6 +89,41 @@ namespace Server
 
                 // Return value if userNode exists, null otherwise.
                 return userNode?.Value;
+            }
+        }
+
+        public void SetUserTcpClient(User user, TcpClient tcpClient)
+        {
+            lock (_userLock)
+            {
+                user.TcpClient = tcpClient;
+            }
+
+            lock (_connectedUsersByTcpClientLock)
+            {
+                _connectedUsersByTcpClient.Add(tcpClient, user);
+            }
+        }
+
+        public void RemoveConnectedUserByClient(TcpClient client)
+        {
+            User user = null;
+
+            lock (_connectedUsersByTcpClientLock)
+            {
+                if (_connectedUsersByTcpClient.ContainsKey(client))
+                {
+                    user = _connectedUsersByTcpClient[client];
+
+                    _connectedUsersByTcpClient.Remove(client);
+                }
+            }
+
+            if (user == null) return;
+
+            lock (_userLock)
+            {
+                user.TcpClient = null;
             }
         }
 

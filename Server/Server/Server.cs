@@ -17,6 +17,11 @@ namespace Server
         private readonly HashSet<TcpClient> _tcpClients = new HashSet<TcpClient>();
         private readonly UserManager _userManager = new UserManager();
 
+        /// <summary>
+        /// Lock object for the tcp clients collection.
+        /// </summary>
+        private readonly object _tcpClientsLock = new object();
+
         private static string TimeNow => $"[{System.DateTime.Now:HH:mm:ss}]";
 
         private string _broadcastMessage = string.Empty;
@@ -71,13 +76,15 @@ namespace Server
                 Console.WriteLine($"{_tcpClients.Count} clients connected... Listening for connection request... \n");
 
                 // Waits for client connection request (blocking call).
-                // TODO: Handle disposal of TcpClient (maybe move to HandleClient thread?)
                 var newClient = _tcpListener.AcceptTcpClient();
 
                 // Client found.
                 Console.WriteLine($"{TimeNow} Connected to client.");
 
-                _tcpClients.Add(newClient);
+                lock (_tcpClientsLock)
+                {
+                    _tcpClients.Add(newClient);
+                }
 
                 // Creates new thread for established connection.
                 var clientThread = new Thread(HandleClient);
@@ -86,7 +93,7 @@ namespace Server
         }
 
         /// <summary>
-        /// Handles an established connection with a single client.
+        /// Handles an established connection with a single client in a new thread.
         /// </summary>
         /// <param name="clientObject"> The client to manage the connection with. </param>
         private void HandleClient(object clientObject)
@@ -111,8 +118,22 @@ namespace Server
                 Console.WriteLine($"{exception} \n");
             }
 
+            _userManager.RemoveConnectedUserByClient((TcpClient)clientObject);
+
             // Client connection lost.
+            CloseClientConnection(clientObject);
+        }
+
+        private void CloseClientConnection(object clientObject)
+        {
+            lock (_tcpClientsLock)
+            {
+                _tcpClients.Remove((TcpClient)clientObject);
+            }
+
+            ((TcpClient)clientObject).Dispose();
             Console.WriteLine($"Client removed. Clients connected: {_tcpClients.Count}");
+            _userManager.DisplayRegisteredUsers();
         }
 
         /// <summary>
@@ -126,6 +147,7 @@ namespace Server
             User user = null;
             var receivedMessage = string.Empty;
 
+            // Listen loop for network stream.
             while (!(receivedMessage.StartsWith(Constants.ExitCommand)))
             {
                 if (user == null)
@@ -143,7 +165,7 @@ namespace Server
 
                 if (user == null)
                 {
-                    user = AuthenticateUser(receivedMessage, sWriter);
+                    user = AuthenticateUser(receivedMessage, client, sWriter);
                 }
 
                 // User is authenticated. Handle messages.
@@ -153,7 +175,8 @@ namespace Server
                     switch (receivedMessage)
                     {
                         case Constants.ExitCommand:
-                            // do something.
+
+                            _userManager.SetUserTcpClient(user, null);
                             break;
 
                         default:
@@ -180,18 +203,31 @@ namespace Server
         /// <param name="requestedId"> The id requested for authentication by the client. </param>
         /// <param name="sWriter"> The client's stream writer. </param>
         /// <returns> The user object for the requested id, if it exists, or null. </returns>
-        private User AuthenticateUser(string requestedId, StreamWriter sWriter)
+        private User AuthenticateUser(string requestedId, TcpClient tcpClient, StreamWriter sWriter)
         {
             User user = null;
+
             // Integer conversion successful.
             if (int.TryParse(requestedId, out var id))
             {
                 user = _userManager.FindUserById(id);
 
+                // User was found.
                 if (user != null)
                 {
+                    // Requested user is already connected.
+                    if (user.IsConnected) return null;
+
+                    // Requested user is not connected, yet.
+                    _userManager.SetUserTcpClient(user, tcpClient);
                     WriteLineAsServer($"Successfully authenticated as {user.Name}.", sWriter);
+
+                    _userManager.DisplayRegisteredUsers();
                 }
+            }
+            else if (requestedId == Constants.ExitCommand)
+            {
+                return user;
             }
             else
             {
@@ -201,6 +237,11 @@ namespace Server
             return user;
         }
 
+        /// <summary>
+        /// Writes a message to a stream writer.
+        /// </summary>
+        /// <param name="message"> The message. </param>
+        /// <param name="sWriter"> The target stream writer. </param>
         private static void WriteLineAsServer(string message, StreamWriter sWriter)
         {
             sWriter.WriteLine($"{TimeNow} [SERVER] {message}");

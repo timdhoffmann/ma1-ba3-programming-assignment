@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Sockets;
 
 namespace Server
 {
@@ -6,6 +7,9 @@ namespace Server
     {
         public int Id { get; private set; } = 0;
         public string Name { get; private set; }
+        public TcpClient TcpClient { get; set; } = null;
+
+        public bool IsConnected => (TcpClient != null);
 
         #region Constructors
 
@@ -37,7 +41,8 @@ namespace Server
 
         public override string ToString()
         {
-            return $"{Name} | Id: {Id}";
+            var onlineStatus = (IsConnected) ? "logged in" : "-";
+            return $"ID: {Id} | NAME: {Name} | STATUS: {onlineStatus}";
         }
     }
 }
