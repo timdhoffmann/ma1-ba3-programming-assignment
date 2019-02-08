@@ -13,19 +13,20 @@ namespace TestConsoleClient
         public bool IsConnected { get; private set; } = false;
 
         #region Constructor
+
         public Client(string ipAddress, int port)
         {
             IpAddress = ipAddress;
             Port = port;
         }
+
         #endregion
 
         public void Connect()
         {
             using (var tcpClient = new TcpClient(IpAddress, Port))
-            using (var networkStream = tcpClient.GetStream())
-            using (var sReader = new StreamReader(networkStream))
-            using (var sWriter = new StreamWriter(networkStream))
+            using (var sReader = new StreamReader(tcpClient.GetStream()))
+            using (var sWriter = new StreamWriter(tcpClient.GetStream()))
             {
                 Console.Clear();
                 sWriter.AutoFlush = true;
@@ -52,6 +53,9 @@ namespace TestConsoleClient
                     outgoingMessage = string.Empty;
                 }
             }
+
+            // Connection lost.
+            IsConnected = false;
         }
     }
 }
